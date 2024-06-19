@@ -1,0 +1,726 @@
+openapi: 3.0.3
+info:
+  title: WasaPhotoDavidePietragalla
+  description: The API for WASAPhoto by Davide Pietragalla
+  version: 1.0.0
+tags:
+  - name: "ban"
+    description: Endpoint for bans
+  - name: "comments"
+    description: Endpoint for comments
+  - name: "follow"
+    description: Endpoint for followers
+  - name: "likes"
+    description: Endpoint for likes
+  - name: "login"
+    description: Endpoint for logins
+  - name: "post"
+    description: Endpoint for posts
+  - name: "search"
+    description: Endpoint for searches
+  - name: "stream"
+    description: Endpoint for streams
+  - name: "users"
+    description: Endpoint for users
+  
+paths:
+ /session:
+  
+    post:
+      tags: ["login"]
+      summary: It logs in the user
+      description: It creates an user if it doesn't exist yet, and it returns the user's identifier
+      operationId: doLogin
+      requestBody:
+        description: User's details
+        content:
+          application/json:
+            schema:
+              description: Information to log in the user
+              type: object
+              properties:
+                name:
+                  description: Nickname
+                  type: string
+                  example: "Maria"
+                  pattern: '^.*?$'
+                  minLength: 3
+                  maxLength: 16
+        required: true
+      responses:
+        '201':
+          description: Log-in successfully executed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/full_user"
+#_______________________________________________________________
+ /user:
+  
+    get:
+      tags: ["search"]
+      summary: It finds a list of users by their nickname
+      description: It returns some user profiles
+      operationId: getUserProfiles
+      parameters:
+        - $ref: "#/components/parameters/nick"
+      responses:
+        '200':
+          $ref: "#/components/responses/user_ok"
+        '400':
+          $ref: "#/components/responses/bad_request"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: "#/components/responses/forbidden"
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+ /user/{id}:
+  
+    parameters:
+      - $ref: "#/components/parameters/identifier"
+    
+    get:
+      tags: ["users"]
+      summary: It gets all details of a user profile
+      description: It returns all info of a profile
+      operationId: getUserProfile
+      parameters:
+        - $ref: "#/components/parameters/nick"
+      responses:
+        '200':
+          $ref: "#/components/responses/profile_fetched"
+        '206':
+          $ref: "#/components/responses/partial_content"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+ /user/{id}/nickname:
+    
+    parameters:
+      - $ref: "#/components/parameters/identifier"
+    
+    put:
+      tags: ["users"]
+      summary: It changes the user's nickname
+      description: It allows the user to change his nickname
+      operationId: setMyUserName
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/user_nickname"
+            example: "Gino"
+        required: true      
+      responses:
+        '204':
+          $ref: "#/components/responses/no_content"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+ /user/{id}/stream:
+  
+    parameters:
+      - $ref: "#/components/parameters/identifier"
+      
+    get:
+      tags: ["stream"]
+      summary: It gets the stream
+      description: It gets all pictures from the users
+      operationId: getMyStream
+      responses:
+        '200':
+          $ref: "#/components/responses/stream_ok"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+ /user/{id}/followers:
+  
+    parameters:
+      - $ref: "#/components/parameters/identifier"
+      - $ref: "#/components/parameters/subject_nick"
+      
+    put:
+      tags: ["follow"]
+      summary: It allows to follow an user
+      description: Used when an user decides to follow another
+      operationId: followUser
+      responses:
+        '204':
+          $ref: "#/components/responses/no_content"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+        
+    delete:
+      tags: ["follow"]
+      summary: It allows to unfollow an user
+      description: Used when an user decides to unfollow another
+      operationId: unfollowUser
+      responses:
+        '204':
+          $ref: "#/components/responses/no_content"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+ /user/{id}/banned_users:
+  
+    parameters:
+      - $ref: "#/components/parameters/identifier"
+      - $ref: "#/components/parameters/subject_nick"
+  
+    put:
+      tags: ["ban"]
+      summary: It blocks an user
+      description: Used when an user decides to ban another
+      operationId: banUser
+      responses:
+        '204':
+          $ref: "#/components/responses/no_content"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+    
+    delete:
+      tags: ["ban"]
+      summary: It unblocks an user
+      description: Used when an user decides to unban another
+      operationId: unbanUser
+      responses:
+        '204':
+          $ref: "#/components/responses/no_content"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________    
+ /user/{id}/posts:
+  
+    parameters: 
+      - $ref: "#/components/parameters/identifier"
+      
+    post:
+      tags: ["post"]
+      summary: It uploads a picture
+      description: It adds a new picture to the user's profile
+      operationId: uploadPhoto
+      requestBody:
+        content:
+          image/*:
+            schema:
+              $ref: "#/components/schemas/image"
+            example: "01001001"
+        required: true
+      responses:
+        '201':
+          $ref: "#/components/responses/post_uploaded"
+        '401':
+          $ref: "#/components/responses/unauthorized"
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+    
+    delete:
+      tags: ["post"]
+      summary: It deletes a picture
+      description: It removes a picture from the user's profile
+      operationId: deletePhoto
+      parameters: 
+      - $ref: "#/components/parameters/post_id"
+      responses:
+        '204':
+          $ref: "#/components/responses/no_content"
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+ /user/{id}/posts/likes:
+  
+    parameters: 
+        - $ref: "#/components/parameters/identifier"
+        - $ref: "#/components/parameters/post_id"
+    
+    put:
+      tags: ["likes"]
+      summary: It adds a like
+      description: It adds a like to the collection of likes
+      operationId: likePhoto
+      responses:
+        '204':
+          $ref: '#/components/responses/no_content'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+    
+    delete:
+      tags: ["likes"]
+      summary: It removes a like
+      description: It removes a like from the collection of likes
+      operationId: unlikePhoto
+      responses:
+        '204':
+          $ref: '#/components/responses/no_content'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+ /user/{id}/posts/comments:
+  
+    parameters: 
+        - $ref: "#/components/parameters/identifier"
+    
+    post:
+      tags: ["comments"]
+      summary: It adds a comment to a post
+      description: It adds a comment to a post in a profile
+      operationId: commentPhoto
+      parameters: 
+        - $ref: "#/components/parameters/post_id"
+      requestBody:
+        description: It contains the content of the comment
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/comment"
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/comment_added'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+    
+    delete:
+      tags: ["comments"]
+      summary: It deletes a comment from a post
+      description: It deletes a comment from a post in a profile
+      operationId: uncommentPhoto
+      parameters:
+        - $ref: "#/components/parameters/comment_id"
+      responses:
+        '204':
+          $ref: '#/components/responses/no_content'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: "#/components/responses/not_found"
+        '500':
+          $ref: "#/components/responses/internal_server_error"
+      security:
+        - bearerAuth: []
+#_______________________________________________________________
+components:
+
+  parameters:
+    
+    nick:
+      name: nickname
+      in: query
+      description: Nickname of the user
+      required: true
+      schema:
+        $ref: "#/components/schemas/user_nickname"
+    
+    identifier:
+      name: id
+      in: path
+      description: The unique id of the user
+      required: true
+      schema:
+        $ref: "#/components/schemas/identifier"
+    
+    subject_nick:
+      name: subject_nick
+      in: query
+      description: Nickname of a subject
+      required: true
+      schema:
+        $ref: "#/components/schemas/user_nickname"
+    
+    post_id:
+      name: post_id
+      in: query
+      description: A post identifier
+      required: true
+      schema: 
+        $ref: "#/components/schemas/identifier"
+  
+    comment_id:
+      name: comment_id
+      in: query
+      description: A comment identifier
+      required: true
+      schema:
+        $ref: "#/components/schemas/identifier"
+      example: 123
+ #_______________________________________________________________ 
+  schemas:
+    
+    user_nickname:
+      description: Any string between 3-16 characters
+      type: string
+      minLength: 3
+      maxLength: 16
+      pattern: '^.*?$'
+      example: "Jojo"
+    
+    identifier:
+      description: Any number between 0-9999
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 9999
+      readOnly: true
+      example: 965
+      
+    full_user:
+      description: Contains the *unique identifier and the nickname of a user
+      type: object
+      properties:
+        user_id:
+          $ref: "#/components/schemas/identifier"
+        nickname:
+          $ref: "#/components/schemas/user_nickname"
+      example:
+        user_id: 966
+        nickname: "NeXus"
+    
+    users_list:
+      description: list of users
+      type: array
+      minItems: 0
+      maxItems: 100
+      items:
+        $ref: "#/components/schemas/full_user"
+      example:
+        - user_id: 999
+          nickname: "jojo"
+        - user_id: 966
+          nickname: "nanni"  
+    
+    like:
+      description: It contains the Id of the user and the Id of the post
+      type: object
+      properties:
+        user_id: 
+          $ref: "#/components/schemas/identifier"
+        post_id: 
+          $ref: "#/components/schemas/identifier"
+      example:
+        user_id: 888
+        post_id: 143
+          
+    comment:
+      description: A comment containing the text of the comment and details of the owner
+      type: object
+      properties:
+        user_id: 
+          $ref: "#/components/schemas/identifier"
+        nickname: 
+          $ref: "#/components/schemas/user_nickname"
+        comment_id:
+          $ref: "#/components/schemas/identifier"  
+        comment:
+          type: string
+          minLength: 1
+          maxLength: 30
+          pattern: '^.*?$'
+          example: "Cool brother"
+          description: Content of the comment
+      example:
+        user_id: 888
+        nickname: "BadKiddo"
+        comment_id: 167
+        comment: "WOW WHAT A SCENERY"          
+    
+    image:
+      description: Content of the image
+      type: string
+      format: binary
+      minLength: 1
+      maxLength: 26214400
+      readOnly: true 
+      example: "00101011"
+    
+    post_post:
+      description: Contains the essential info of a post
+      type: object
+      properties:
+        comments:
+          description: Array of comments of a post
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/comment"
+          example:
+            - user_id: 787
+              nickname: "jackson"
+              comment_id: 124
+              comment: "what a great singer!"
+            - user_id: 789
+              nickname: "jason"
+              comment_id: 122
+              comment: "what a great song!"
+        likes:
+          description:  Array of likes of a post
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/like"
+          example: 
+            -  user_id: 909
+               post_id: 108
+            -  user_id: 907
+               post_id: 109
+        date:
+          description: Date and time of upload.
+          type: string
+          format: date-time
+          example: "2019-02-21T17:32:28Z"
+          readOnly: true
+        post_id:
+          $ref: "#/components/schemas/identifier"
+        owner:
+          $ref: "#/components/schemas/full_user"
+      example: 
+        comments:
+          - user_id: 909
+            nickname: "Erik"
+            comment_id: 99
+            comment: "great post!"
+          - user_id: 789
+            nickname: "jason"
+            comment_id: 122
+            comment: "what a great song!"
+        likes:
+          - user_id: 88
+            post_id: 108
+          - user_id: 909
+            post_id: 100
+        date: "2019-02-21T17:32:28Z"
+        post_id: 3821
+        owner:
+            user_id: 966
+            nickname: "NeXus"
+    
+    post_list:
+      description: Array of posts
+      type: array
+      minItems: 0
+      maxItems: 10
+      items:
+        $ref: "#/components/schemas/post_post"
+      example:
+      - comments:
+          - user_id: 998
+            nickname: "txco"
+            comment_id: 124
+            comment: "enmo"
+          - user_id: 993
+            nickname: "farroZerro"
+            comment_id: 19
+            comment: "spancaaa"
+        likes:
+          - user_id: 991
+            post_id: 101
+          - user_id: 992
+            post_id: 102
+        date: "2022-11-22T13:10:14Z"
+        post_id: 7833
+        owner:
+            user_id: 963
+            nickname: "NeX"
+      - comments:
+          - user_id: 999
+            nickname: "tuco"
+            comment_id: 104
+            comment: "ennamo"
+          - user_id: 999
+            nickname: "ferroZerro"
+            comment_id: 99
+            comment: "spaccaaa"
+        likes:
+          - user_id: 999
+            post_id: 107
+          - user_id: 999
+            post_id: 108
+        date: "2022-11-22T13:10:14Z"
+        post_id: 7836
+        owner:
+            user_id: 966
+            nickname: "NeXus"
+    
+    full_profile:
+      description: Object containing all the profile info
+      type: object
+      properties:
+        user_id:
+          $ref: "#/components/schemas/identifier"
+        nickname:
+          $ref: "#/components/schemas/user_nickname"
+        followers:
+          $ref: "#/components/schemas/users_list"
+        following:
+          $ref: "#/components/schemas/users_list"
+        posts:
+          $ref: "#/components/schemas/post_list"
+#_______________________________________________________________
+  responses:
+  
+    user_ok:
+      description: User found successfully by the id/nick.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/users_list"
+            
+    profile_fetched:
+      description: This response is associated to the 200 http status (The profile info is fetched)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/full_profile"
+            
+    stream_ok:
+      description: This response is associated to the 200 http status(Contains a list of posts from the users)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/post_list"
+            
+    post_uploaded:
+      description: This response is associated to the 201 http status(post has been uploaded successfully.)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/post_post"
+            
+    comment_added:
+      description: This response is associated to the 201 http status(Comment has been added successfully and the method returns the comment's id.)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/identifier"
+            
+    no_content:
+      description: This response is associated to the 204 http status (There is no content to send for this request)
+      
+    partial_content:
+      description: This response is associated to the 206 http status (The requested resource has partial info)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/full_profile"
+            
+    bad_request:
+      description: This response is associated to the 400 http status (The server cannot process the request due to something that is perceived to be a client error)
+      
+    unauthorized:
+      description: This response is associated to the 401 http status (The client must authenticate itself to get the requested response)
+      
+    forbidden:
+      description: This response is associated to the 403 http status (The client does not have access rights to the content)
+      
+    not_found:
+      description: This response is associated to the 404 http status (The server cannot find the requested resource.)
+      
+    internal_server_error:
+      description: This response is associated to the 500 http status (The server has encountered a situation it does not know how to handle.)
+#_______________________________________________________________
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
