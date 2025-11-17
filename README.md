@@ -1,6 +1,6 @@
-# WasaPhotoDavidePietragalla 📸
+# WasaPhoto 📸
 
-WasaPhotoDavidePietragalla is a social media platform focused on photo sharing. It allows users to create accounts, upload photos, follow other users, like and comment on posts, and manage their network. The platform provides API endpoints for user authentication, post management, user interaction (following, liking, commenting), and moderation (banning). It uses a SQLite database to store user data, posts, and relationships. The API is documented using OpenAPI, enabling easy integration with frontend applications and other services.
+WasaPhoto is a social media platform focused on photo sharing. It allows users to create accounts, upload photos, follow other users, like and comment on posts, and manage their network. The platform provides API endpoints for user authentication, post management, user interaction (following, liking, commenting), and moderation (banning). It uses a SQLite database to store user data, posts, and relationships. The API is documented using OpenAPI, enabling easy integration with frontend applications and other services.
 
 ## 🚀 Key Features
 
