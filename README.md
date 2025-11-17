@@ -40,7 +40,7 @@ WasaPhoto is a social media platform focused on photo sharing. It allows users t
 
     ```bash
     git clone <repository_url>
-    cd WasaPhotoDavidePietragalla
+    cd WasaPhoto
     ```
 
 2.  Download dependencies:
@@ -68,7 +68,7 @@ WasaPhoto is a social media platform focused on photo sharing. It allows users t
 ## 📂 Project Structure
 
 ```
-WasaPhotoDavidePietragalla/
+WasaPhoto/
 ├── cmd/
 │   └── webapi/             # Main application entry point
 ├── doc/
